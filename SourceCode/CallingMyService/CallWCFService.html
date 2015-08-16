@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+<title>Calling WCF Service</title>
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<!-- <script src="http://localhost:40553/Scripts/base64.js"></script> -->
+	<script language="javascript">
+				function GetUsers()
+				{
+					$.ajax({					
+							type:"GET",
+							url:'http://localhost/MyService/UserService.svc/GetUsers',			
+							contentType:"application/json; charset=utf-8",
+							dataType:"json",
+							//beforeSend: function (xhr) {
+							//		xhr.setRequestHeader("Authorization", "Basic " + encodeBase64("sameproblem:morecode"));
+							//},
+							success:function(result){
+									var list="<table width='50%' border='0' cellspacing='0' cellpadding='0'>";
+										$.each(result,function(i,item){
+											list+="<tr onclick=\"FillRecord("+item.UserId+",'"+item.UserName+"','"+item.Password+"')\" style=\"cursor:pointer;\" id=\"row"+item.UserId+"\">";
+											list+="<td>"+item.UserId+"</td>";
+											list+="<td>"+item.UserName+"</td>";
+											list+="<td>"+item.Password+"</td>";
+											list+="<td> <span title=\"Delete User\" onclick=\"deleteUser("+item.UserId+")\" style=\"cursor:pointer; color:blue;\" id='spDel"+item.UserId+"'>X</span></td>";
+											list+="</tr>";
+										});
+										list+="</table>";
+										
+										$("#dvUsers").html(list).fadeIn(2000);
+							},
+							 error: function (errmsg,test,t) {
+							 alert('error ocured:' + errmsg.status + test);
+							 }
+						});	
+				}
+	
+		$(document).ready(function(){
+		//For Getting Record
+				GetUsers();
+		//For Inserting 
+		$("#btnSubmit").click(function(){
+			var userInsert={"UserId":0,"UserName":$("#txtUserName").val(),"Password":$("#txtPass").val()};
+							
+				$.ajax({					
+						type:"POST",
+						data:JSON.stringify({user:userInsert}),
+						url:'http://localhost/MyService/UserService.svc/InsertUser',			
+						contentType:"application/json; charset=utf-8",
+						dataType:"json",
+						//beforeSend: function (xhr) {
+						//	xhr.setRequestHeader("Authorization", "Basic " + encodeBase64("sameproblem:morecode"));
+						//},
+						success:function(result){
+							$("#dvMessage").html("User has been added successfully.!!");
+							setTimeout(function() { $("#dvMessage").hide(); }, 5000);
+						},
+						 error: function (xhr, ajaxOptions, thrownError) {
+							//debugger;
+							alert("ERROR"+xhr.status+''+xhr.responseText+''+thrownError);
+						  }
+					});
+			});
+			
+			
+			//For Inserting 
+			var addHeaders = function (xhr) {
+				xhr.setRequestHeader("Authorization", "Basic bHV1azp0ZXN0"); //
+			};
+			
+			$("#btnUpdate").click(function(){
+			`	var userInsert={"UserId":$("#hdnUserId").val(),"UserName":$("#txtUserName").val(),"Password":$("#txtPass").val()};
+							
+				$.ajax({					
+						type:"POST",
+						data:JSON.stringify({user:userInsert}),
+						url:'http://localhost/MyService/UserService.svc/UpdateUser',			
+						contentType:"application/json; charset=utf-8",
+						dataType:"json",
+						//beforeSend: function (xhr) {
+						//	xhr.setRequestHeader("Authorization", "Basic " + encodeBase64("sameproblem:morecode"));
+						//},
+						success:function(result){
+							$("#dvMessage").html("User has been updated successfully.!!");
+							setTimeout(function() { $("#dvMessage").hide(); }, 5000);
+						},
+						 error: function (xhr, ajaxOptions, thrownError) {
+							//debugger;
+							alert("ERROR"+xhr.status+''+xhr.responseText+''+thrownError);
+						  }
+					});
+			});
+		});
+		
+		function deleteUser(userId){
+				$.ajax({					
+						type:"POST",
+						data:JSON.stringify({userId:userId}),
+						url:'http://localhost/MyService/UserService.svc/DeleteUser',			
+						contentType:"application/json; charset=utf-8",
+						dataType:"json",
+						//beforeSend: function (xhr) {
+						//	xhr.setRequestHeader("Authorization", "Basic " + encodeBase64("sameproblem:morecode"));
+						//},
+						success:function(result){
+							GetUsers();
+							$("#dvMessage").html("User has been deleted successfully.!!");
+							setTimeout(function() { $("#dvMessage").hide(); }, 5000);
+						},
+						 error: function (xhr, ajaxOptions, thrownError) {
+							//debugger;
+							alert("ERROR"+xhr.status+''+xhr.responseText+''+thrownError);
+						  }
+					});
+			}			
+		function FillRecord(userId,userName,password)
+		{
+			$("#hdnUserId").val(userId);
+			$("#txtUserName").val(userName);
+			$("#txtPass").val(password);
+		}
+	</script>
+</head>
+<body>
+<form id="myForm">
+<input type="hidden" id="hdnUserId" />
+<table border="0" width="50%" cellspacing="0" cellpadding="10">
+	<tr>
+		<td colspan="2"> 
+			<div id="dvMessage" style="background-color:#f8efa7;box-shadow:0 1px 2px rgba(0,0,0,0.15); border-radius:3px; line-height:1.5; width:100%; position:relative; opacity:1;z-index:-9000; text-align:center"></div>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2"> 
+		<h2>Existing Users</h2>
+			<div id="dvUsers">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<h2>Insert User</h2>
+		</td>
+	</tr>
+	<tr>
+		<td><strong>User Name:</strong></td>
+		<td><input type="text" title="Enter User Name" id="txtUserName">
+		</td></tr>
+	<tr>
+		<td><strong>Password:</strong></td>
+		<td><input type="password" id="txtPass"></td>
+	</tr>
+	<tr>
+		<td colspan="2" align="center">
+			<input type="button" id="btnSubmit" value="Add">
+			<input type="button" id="btnUpdate" value="Update">
+		</td>
+	</tr>
+</table>
+</form>
+</body>
+</html>
